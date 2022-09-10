@@ -49,7 +49,19 @@ while inputs:
                 # A readable client socket has data
                 # print data
                 # message_queues[s].put(data)
-                if data == "start":
+                if data[0].isdigit():
+                        j = int( data )
+                        if j >= 300 and j <= 400:
+                            pwm_duty( (j - 300.0)/1000.0 )
+                            message_queues[s].put(data)
+                        else:
+                            red = int(data[:3])
+                            green = int(data[3:6])
+                            blue = int(data[6:])
+                            setRGB( red, green, blue )
+                            setText("\n\n")
+                            message_queues[s].put(data)
+                elif data == "start":
                         initpin(led, 'out')
                         textCommand(0x01) # clear display
                         time.sleep(.05)

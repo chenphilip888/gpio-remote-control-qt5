@@ -4,6 +4,8 @@
 #include <QLineEdit>
 #include <QApplication>
 #include <QPushButton>
+#include <QSlider>
+#include <QLabel>
 
 class Client_gpio : public QMainWindow {
     
@@ -30,11 +32,21 @@ class Client_gpio : public QMainWindow {
     void servoLeft();
     void servoMiddle();
     void servoStop();
+    void send_lcd();
+    void send_servo();
     void stop_test();
 
   private:
     QLineEdit *edt2;
+    QString m_text;
+    QSlider *sliderR;
+    QSlider *sliderG;
+    QSlider *sliderB;
+    QLabel *labelR;
+    QLabel *labelG;
+    QLabel *labelB;
+    QSlider *sliderServo;
+    QLabel *labelServo;
     void   send_cmd( const char * cmd );
     int    sock;
-    QString m_text;
 };

@@ -4,7 +4,7 @@ radxa  ( Rock Pi 4B plus )
 rk3328 ( Renegade ROC-RK3328-CC )
 tinker ( ASUS TinkerBoard )
 
-Install Qt5 on PC. Use PC Qt5 buttons to control SBC's gpio remotely.
+Install Qt5 on PC. Use PC Qt5 buttons and sliders to control SBC's gpio remotely.
 Server program runs on SBC's. Client program runs on host PC. Client program needs to adjust server ip address.
 
 Parts required:
@@ -160,7 +160,6 @@ Here are the summary of the tests:
 These tests used Seeed Grove starter kit LED, Grove-LCD RGB Backlight V3.0 JHD1313M2 and Analog Servo.
 
 1. led test.
-   This test will blink led 5 times.
    Connect gpio pin 16 to led control. ( rpi4b ).
    Connect gpio pin 18 to led control. ( radxa ).
    Connect gpio pin 16 to led control. ( rk3328 ).
@@ -169,8 +168,6 @@ These tests used Seeed Grove starter kit LED, Grove-LCD RGB Backlight V3.0 JHD13
    Connect gpio pin  9 to led ground.
 
 2. i2c lcd test.
-   This test will change lcd backlight color for 5 cycles.
-   Then it will display two sentences on lcd display.
    Connect gpio pin  3 to lcd display SDA. ( rpi4b i2c-1 ).
    Connect gpio pin  5 to lcd display SCL.
    Connect gpio pin  3 to lcd display SDA. ( radxa i2c-7 ).
@@ -183,7 +180,6 @@ These tests used Seeed Grove starter kit LED, Grove-LCD RGB Backlight V3.0 JHD13
    Connect gpio pin  9 to lcd display ground.
 
 3. servo.
-   This test will turn servo 45 degree - 90 degree - 45 degree - 0 degree etc.
    Connect gpio pin 33 to servo control. ( rpi4b pwm 1 ).
    Connect gpio pin 13 to led control.   ( radxa pwm 1 ).
    Connect gpio pin 12 to led control.   ( rk3328 pwm 2 ).

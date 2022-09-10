@@ -3,7 +3,8 @@
 import socket
 import time
 import sys
-from PyQt5.QtWidgets import (QWidget, QMainWindow, QGridLayout, QPushButton, QApplication, QLineEdit)
+from PyQt5.QtWidgets import (QWidget, QMainWindow, QGridLayout, QLabel, QStatusBar, QSlider, QPushButton, QApplication, QLineEdit)
+from PyQt5.QtCore import Qt
 
 HOST = '192.168.86.34'   # The remote host
 PORT = 50007              # The same port as used by the server
@@ -42,6 +43,22 @@ class Client_gpio(QMainWindow):
         Servomiddlebtn = QPushButton("Servo Middle", self)
         Servorightbtn = QPushButton("Servo Right", self)
         Servostopbtn = QPushButton("Servo Stop", self)
+        self.red   = QLabel('R')
+        self.red.setStyleSheet("QLabel{color:rgba(225,0,0,255);}")
+        self.green = QLabel('G')
+        self.green.setStyleSheet("QLabel{color:rgba(0,255,0,255);}")
+        self.blue  = QLabel('B')
+        self.blue.setStyleSheet("QLabel{color:rgba(0,0,255,255);}")
+        self.sldr = QSlider(Qt.Horizontal, self)
+        self.sldr.setRange(0, 255)
+        self.sldg = QSlider(Qt.Horizontal, self)
+        self.sldg.setRange(0, 255)
+        self.sldb = QSlider(Qt.Horizontal, self)
+        self.sldb.setRange(0, 255)
+        self.servo = QLabel("Servo")
+        self.servo.setStyleSheet("QLabel{color:rgba(125,63,255,255);}")
+        self.sld = QSlider(Qt.Horizontal, self)
+        self.sld.setRange(50, 100)
 
         grid = QGridLayout(self.widget)
         grid.setSpacing(10)
@@ -63,6 +80,14 @@ class Client_gpio(QMainWindow):
         grid.addWidget(Servomiddlebtn, 5, 1)
         grid.addWidget(Servorightbtn, 5, 2)
         grid.addWidget(Servostopbtn, 5, 3)
+        grid.addWidget(self.sldr, 5, 0, 5, 3)
+        grid.addWidget(self.sldg, 6, 0, 6, 3)
+        grid.addWidget(self.sldb, 7, 0, 7, 3)
+        grid.addWidget(self.red,   7, 3)
+        grid.addWidget(self.green, 8, 3)
+        grid.addWidget(self.blue,  10, 3)
+        grid.addWidget(self.sld, 8, 0, 8, 3)
+        grid.addWidget(self.servo, 11, 3)
 
         self.widget.setLayout(grid)
 
@@ -84,12 +109,45 @@ class Client_gpio(QMainWindow):
         Servomiddlebtn.clicked.connect(self.buttonClicked)
         Servorightbtn.clicked.connect(self.buttonClicked)
         Servostopbtn.clicked.connect(self.buttonClicked)
+        self.sldr.valueChanged[int].connect(self.lcdchangeValue)
+        self.sldg.valueChanged[int].connect(self.lcdchangeValue)
+        self.sldb.valueChanged[int].connect(self.lcdchangeValue)
+        self.sld.valueChanged[int].connect(self.servochangeValue)
 
         self.statusBar()
 
-        self.setGeometry(300, 300, 400, 300)
+        self.setGeometry(300, 300, 500, 600)
         self.setWindowTitle('gpio test')
         self.show()
+
+    def lcdchangeValue(self):
+
+        valr = str(self.sldr.value())
+        if len(valr) == 1:
+            valr = '00' + valr
+        elif len(valr) == 2:
+            valr = '0' + valr
+        valg = str(self.sldg.value())
+        if len(valg) == 1:
+            valg = '00' + valg
+        elif len(valg) == 2:
+            valg = '0' + valg
+        valb = str(self.sldb.value())
+        if len(valb) == 1:
+            valb = '00' + valb
+        elif len(valb) == 2:
+            valb = '0' + valb
+        val = valr + valg + valb
+        sock.sendall(val.encode('utf-8'))
+        data = sock.recv(1024)
+        self.statusBar().showMessage(repr(data))
+
+    def servochangeValue(self):
+
+        str_val = str(self.sld.value() + 300)
+        sock.sendall(str_val.encode('utf-8'))
+        data = sock.recv(1024)
+        self.statusBar().showMessage(repr(data))
 
     def onChanged(self, text):
 

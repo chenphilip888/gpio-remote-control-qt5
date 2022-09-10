@@ -110,13 +110,16 @@ int handle_new_connection()
 
 int main(int argc , char *argv[])   
 {   
-    int activity, i, valread, sd, max_sd;
+    int activity, i, j, valread, sd, max_sd;
+    int r, g, b;
+    float k;
     int addrlen;
     int fd;
     int pwm_period;
     addrlen = sizeof(address);
     char message2[40];
     char buffer[1025];
+    char tmp[4];
     fd_set readfds;   
     fd_set writefds;     
 
@@ -182,7 +185,34 @@ int main(int argc , char *argv[])
                 else 
                 {
                     buffer[valread] = '\0';
-                    if (strcmp(buffer, "start") == 0) {
+                    if (buffer[0] >= '0' && buffer[0] <= '9') {
+                       j = atoi( buffer );
+                       if ( j >= 300 && j <= 400 ) {
+                          k = (j - 300.0)/1000.0;
+                          pwm_duty( k, pwm_period );
+                       } else {
+                          for ( j = 0; j < 3; j++ ) {
+                              tmp[j] = buffer[j];
+                          }
+                          tmp[j] = '\0';
+                          r = atoi( tmp );
+                          for ( j = 0; j < 3; j++ ) {
+                              tmp[j] = buffer[j+3];
+                          }
+                          tmp[j] = '\0';
+                          g = atoi( tmp );
+                          for ( j = 0; j < 3; j++ ) {
+                              tmp[j] = buffer[j+6];
+                          }
+                          tmp[j] = '\0';
+                          b = atoi( tmp );
+                          set_backlight( fd, r, g, b );
+                          setText( fd, "\n\n" );
+                       }
+                       strcpy( message2, buffer );
+                       msg = 1;
+
+                    } else if (strcmp(buffer, "start") == 0) {
                         initpin( LED, "out" );
                         textCommand( fd, 0x01 );        // clear display
                         usleep( 5000 );

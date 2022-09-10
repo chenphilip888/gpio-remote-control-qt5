@@ -1,5 +1,6 @@
 #include "client_gpio.h"
 #include <QGridLayout>
+#include <QLabel>
 #include <QStatusBar>
 #include <QLineEdit>
 #include <stdio.h> 
@@ -68,6 +69,22 @@ Client_gpio::Client_gpio(QWidget *parent)
   QPushButton *servoLeftBtn = new QPushButton("Servo Left", this);
   QPushButton *servoMiddleBtn = new QPushButton("Servo Middle", this);
   QPushButton *servoStopBtn = new QPushButton("Servo Stop", this);
+  labelR = new QLabel("R", this);
+  labelR->setStyleSheet("QLabel{color:rgba(255, 0, 0, 255);}");
+  labelG = new QLabel("G", this);
+  labelG->setStyleSheet("QLabel{color:rgba(0, 255, 0, 255);}");
+  labelB = new QLabel("B", this);
+  labelB->setStyleSheet("QLabel{color:rgba(0, 0, 255, 255);}");
+  sliderR = new QSlider(Qt::Horizontal, this);
+  sliderR->setRange(0, 255);
+  sliderG = new QSlider(Qt::Horizontal, this);
+  sliderG->setRange(0, 255);
+  sliderB = new QSlider(Qt::Horizontal, this);
+  sliderB->setRange(0, 255);
+  labelServo = new QLabel("Servo", this);
+  labelServo->setStyleSheet("QLabel{color:rgba(125, 64, 255, 255);}");
+  sliderServo = new QSlider(Qt::Horizontal, this);
+  sliderServo->setRange(50, 100);
 
   QGridLayout *grid = new QGridLayout(widget);
   grid->setSpacing(10);
@@ -91,6 +108,14 @@ Client_gpio::Client_gpio(QWidget *parent)
   grid->addWidget(servoLeftBtn, 5, 0);
   grid->addWidget(servoMiddleBtn, 5, 1);
   grid->addWidget(servoStopBtn, 5, 3);
+  grid->addWidget(sliderR, 5, 0, 5, 3);
+  grid->addWidget(labelR, 7, 3);
+  grid->addWidget(sliderG, 6, 0, 6, 3);
+  grid->addWidget(labelG, 8, 3);
+  grid->addWidget(sliderB, 7, 0, 7, 3);
+  grid->addWidget(labelB, 10, 3);
+  grid->addWidget(sliderServo, 8, 0, 8, 3);
+  grid->addWidget(labelServo, 11, 3);
 
   widget->setLayout(grid);
   setCentralWidget(widget);
@@ -114,9 +139,36 @@ Client_gpio::Client_gpio(QWidget *parent)
   connect(servoLeftBtn, &QPushButton::clicked, this, &Client_gpio::servoLeft);
   connect(servoMiddleBtn, &QPushButton::clicked, this, &Client_gpio::servoMiddle);
   connect(servoStopBtn, &QPushButton::clicked, this, &Client_gpio::servoStop);
+  connect(sliderR, &QSlider::valueChanged, this, &Client_gpio::send_lcd);
+  connect(sliderG, &QSlider::valueChanged, this, &Client_gpio::send_lcd);
+  connect(sliderB, &QSlider::valueChanged, this, &Client_gpio::send_lcd);
+  connect(sliderServo, &QSlider::valueChanged, this, &Client_gpio::send_servo);
 
   m_text = QString();
   sock = make_socket( PORT );
+}
+
+void Client_gpio::send_lcd() {
+  int valread;
+  char buffer[1024] = {0};
+  char lcd[10];
+  sprintf(lcd, "%03d%03d%03d", sliderR->value(), sliderG->value(), sliderB->value());
+  send(sock , lcd, strlen(lcd) , 0 );
+  valread = read( sock, buffer, 1024 );
+  buffer[valread] = '\0';
+  statusBar()->showMessage(buffer);
+}
+
+void Client_gpio::send_servo() {
+
+  int valread;
+  char servo[4];
+  sprintf(servo, "%d", sliderServo->value() + 300);
+  char buffer[1024] = {0};
+  send(sock , servo, strlen(servo) , 0 );
+  valread = read( sock, buffer, 1024 );
+  buffer[valread] = '\0';
+  statusBar()->showMessage(buffer);
 }
    
 void Client_gpio::send_cmd( const char * cmd ) {
@@ -231,7 +283,7 @@ int main(int argc, char *argv[]) {
 
   Client_gpio window;
 
-  window.resize(400, 300);
+  window.resize(500, 600);
   window.setWindowTitle("gpio test");
   window.show();
 
